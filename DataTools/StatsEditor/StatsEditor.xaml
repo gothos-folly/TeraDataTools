@@ -1,0 +1,33 @@
+﻿<Window x:Class="DataTools.StatsEditor.StatsEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:o="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        Title="StatsEditor (Don't edit npc stats!!!)"
+        Height="641" Width="653">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Left" Width="280">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
+                <Button Content="Save" Name="SaveButton" Margin="5px" Padding="20px 5px 20px 5px" Click="Save" />
+                <Button Content="Reload" Name="ReloadButton" Margin="5px" Padding="20px 5px 20px 5px" Click="Reload" />
+            </StackPanel>
+
+            <Label Content="Data:" FontSize="18px" DockPanel.Dock="Top" />
+            <ListBox Name="ListBox" ItemsSource="{Binding}"  VerticalAlignment="Stretch" Margin="5px">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Label Content="{Binding}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <DockPanel Margin="5px">
+            <DockPanel>
+                <Label Content="Edit:" FontSize="18px" DockPanel.Dock="Top" />
+                <WindowsFormsHost>
+                    <o:PropertyGrid x:Name="PropertyGrid" />
+                </WindowsFormsHost>
+            </DockPanel>
+        </DockPanel>
+    </DockPanel>
+</Window>

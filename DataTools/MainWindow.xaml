@@ -1,0 +1,8 @@
+﻿<Window x:Class="DataTools.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DataTools" MinWidth="160" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStyle="SingleBorderWindow">
+    <StackPanel Name="Panel" Margin="5">
+        
+    </StackPanel>
+</Window>
