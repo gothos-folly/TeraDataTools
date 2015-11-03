@@ -80,6 +80,7 @@
     <Compile Include="Parsers\DC\ContinentParser.cs" />
     <Compile Include="Parsers\DC\CooldownGroupsParser.cs" />
     <Compile Include="Parsers\DC\GatherParser.cs" />
+    <Compile Include="Parsers\DC\MyRaceGenderClass.cs" />
     <Compile Include="Parsers\DC\NpcParser.cs" />
     <Compile Include="Parsers\DC\PegasusPathParser.cs" />
     <Compile Include="Parsers\DC\SkillParser.cs" />

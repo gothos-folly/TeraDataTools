@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using DCTools;
 using DCTools.Structures;
@@ -8,20 +9,21 @@ using Data.Enums.SkillEngine;
 using Data.Structures.Player;
 using Data.Structures.SkillEngine;
 using ProtoBuf;
+using System.Linq;
 
 namespace DataTools.Parsers.DC
 {
     class SkillParser
     {
-        public static Dictionary<int, Dictionary<int, Dictionary<string, object>>> Strings = new Dictionary<int, Dictionary<int, Dictionary<string, object>>>();
+        public static Dictionary<MyRaceGenderClass, Dictionary<int, Dictionary<string, object>>> Strings = new Dictionary<MyRaceGenderClass, Dictionary<int, Dictionary<string, object>>>();
 
         public static Dictionary<string, Dictionary<string, Animation>> Animations = new Dictionary<string, Dictionary<string, Animation>>();
 
-        public static Dictionary<int, Dictionary<int, UserSkill>> UserSkills = new Dictionary<int, Dictionary<int, UserSkill>>();
+        public static Dictionary<MyRaceGenderClass, Dictionary<int, UserSkill>> UserSkills = new Dictionary<MyRaceGenderClass, Dictionary<int, UserSkill>>();
 
         public static Dictionary<int, Dictionary<int, Dictionary<int, Skill>>> Skills = new Dictionary<int, Dictionary<int, Dictionary<int, Skill>>>();
 
-        public static Dictionary<int, DefaultSkillSet> DefaultSkillSets = new Dictionary<int, DefaultSkillSet>();
+        public static Dictionary<MyRaceGenderClass, DefaultSkillSet> DefaultSkillSets = new Dictionary<MyRaceGenderClass, DefaultSkillSet>();
 
         public static DataCenter DC = DCT.GetDataCenter();
 
@@ -33,26 +35,31 @@ namespace DataTools.Parsers.DC
 
             ParseUserSkills();
 
-            ParseSkills();
+            //ParseSkills();
 
-            ParseDefaultSkillSets();
+            //ParseDefaultSkillSets();
 
-            string binPath = Path.GetFullPath("../../../../datapack/gameserver/data/");
+            string binPath = Path.GetFullPath("data/");
 
-            using (FileStream fs = File.Create(binPath + "default_skill_sets.bin"))
-            {
-                Serializer.Serialize(fs, DefaultSkillSets);
-            }
+            File.WriteAllLines(binPath + "user_skills.txt", Strings.SelectMany(x => x.Value).Select(x => x.Value).OrderBy(x => MyRaceGenderClass.NormalizeClass((string)x["class"])).ThenBy(x => int.Parse((string)x["id"])).Select(x => x["id"] + " " + x["race"] + " " + x["gender"] + " " + MyRaceGenderClass.NormalizeClass((string)x["class"]) + " " + x["name"]));
+            //File.WriteAllLines(binPath + "user_skills.txt", UserSkills.SelectMany(x => x.Value.Select(y => new { RGC = x.Key, Skill = y.Value })).OrderBy(x => x.RGC.Class).ThenBy(x => x.Skill.SkillId).Where(x => x.Skill.Name != "UNK").Select(x => x.Skill.SkillId + " " + x.RGC + " " + x.Skill.Name));
+            // var flattenedSkills = Skills.SelectMany(x => x.Value.Select(y => new { HuntingZoneId = x.Key, Value = y.Value })).SelectMany(x => x.Value.Select(y => new { HuntingZoneId = x.HuntingZoneId, TemplateId = y.Key, Skill = y.Value }));
+            //File.WriteAllLines(binPath + "skills.txt", flattenedSkills.OrderBy(x => x.Skill.Id).Select(x => x.Skill.Id + " " + x.HuntingZoneId + " " + x.TemplateId + " " + x.Skill.Name));
 
-            using (FileStream fs = File.Create(binPath + "user_skills.bin"))
-            {
-                Serializer.Serialize(fs, UserSkills);
-            }
+            //using (FileStream fs = File.Create(binPath + "default_skill_sets.bin"))
+            //{
+            //    Serializer.Serialize(fs, DefaultSkillSets);
+            //}
 
-            using (FileStream fs = File.Create(binPath + "skills.bin"))
-            {
-                Serializer.Serialize(fs, Skills);
-            }
+            //using (FileStream fs = File.Create(binPath + "user_skills.bin"))
+            //{
+            //    Serializer.Serialize(fs, UserSkills);
+            //}
+
+            //using (FileStream fs = File.Create(binPath + "skills.bin"))
+            //{
+            //    Serializer.Serialize(fs, Skills);
+            //}
         }
 
         public static void LoadStrSheetUserSkill()
@@ -61,10 +68,11 @@ namespace DataTools.Parsers.DC
 
             foreach (var o in DC.GetMainObjectsByName("StrSheet_UserSkill"))
             {
-                foreach (var data in (List<Dictionary<string, object>>) DC.GetValues(o)["String"])
+                foreach (var data in (List<Dictionary<string, object>>)DC.GetValues(o)["String"])
                 {
-                    int templateId = int.Parse(data["templateId"].ToString());
+                    //int templateId = int.Parse(data["templateId"].ToString());
                     int id = int.Parse(data["id"].ToString());
+                    var templateId = new MyRaceGenderClass((string)data["race"], (string)data["gender"], (string)data["class"]);
 
                     if (!Strings.ContainsKey(templateId))
                         Strings.Add(templateId, new Dictionary<int, Dictionary<string, object>>());
@@ -83,14 +91,14 @@ namespace DataTools.Parsers.DC
 
             foreach (var o in DC.GetMainObjectsByName("AnimationData"))
             {
-                foreach (var setData in (List<Dictionary<string, object>>) DC.GetValues(o)["AnimSet"])
+                foreach (var setData in (List<Dictionary<string, object>>)DC.GetValues(o)["AnimSet"])
                 {
                     string setName = setData["name"].ToString().ToLower();
 
                     if (!Animations.ContainsKey(setName))
                         Animations.Add(setName, new Dictionary<string, Animation>());
 
-                    foreach (var data in (List<Dictionary<string, object>>) setData["Animation"])
+                    foreach (var data in (List<Dictionary<string, object>>)setData["Animation"])
                     {
                         string name = data["name"].ToString().ToLower();
                         Animation animation = new Animation();
@@ -99,7 +107,7 @@ namespace DataTools.Parsers.DC
                         animation.Dir = int.Parse(data["moveDir"].ToString());
 
                         for (int i = 0; i < 7; i++)
-                            animation.Distance.Add(float.Parse(data["moveDistance" + (i +1)].ToString()));
+                            animation.Distance.Add(float.Parse(data["moveDistance" + (i + 1)].ToString()));
 
                         animation.RootMotion = bool.Parse(data["rootMotion"].ToString());
                         animation.RootRotate = bool.Parse(data["rootRotate"].ToString());
@@ -128,31 +136,28 @@ namespace DataTools.Parsers.DC
                     skill.SkillId = int.Parse(data["skillId"].ToString());
                     skill.Level = int.Parse(data["level"].ToString());
 
-                    skill.RaceGenderClass
-                        = new RaceGenderClass
-                              {
-                                  Race = (Race) Enum.Parse(typeof (Race), data["race"].ToString()),
-                                  Gender = (Gender) Enum.Parse(typeof (Gender), data["gender"].ToString()),
-                                  Class = (PlayerClass) Enum.Parse(typeof (PlayerClass), data["class"].ToString()),
-                              };
+                    //skill.RaceGenderClass
+                    //    = new RaceGenderClass
+                    //          {
+                    //              Race = (Race)Enum.Parse(typeof(Race), data["race"].ToString()),
+                    //              Gender = (Gender)Enum.Parse(typeof(Gender), data["gender"].ToString()),
+                    //              Class = (PlayerClass)Enum.Parse(typeof(PlayerClass), data["class"].ToString()),
+                    //          };
+                    var raceGenderClass = new MyRaceGenderClass(data["race"].ToString(), data["gender"].ToString(), data["class"].ToString());
 
                     skill.IsActive = bool.Parse(data["isActive"].ToString());
 
                     skill.PrevSkillId = int.Parse(data["prevSkillId"].ToString());
                     skill.PrevSkillOverride = bool.Parse(data["prevSkillOverride"].ToString());
 
-                    if (!UserSkills.ContainsKey(skill.TemplateId))
-                        UserSkills.Add(skill.TemplateId, new Dictionary<int, UserSkill>());
+                    if (!UserSkills.ContainsKey(raceGenderClass))
+                        UserSkills.Add(raceGenderClass, new Dictionary<int, UserSkill>());
 
-                    Dictionary<string, object> stringData;
-
-                    try
+                    Dictionary<string, object> stringData=null;
+                    Dictionary<int, Dictionary<string, object>> stringsForRgc;
+                    if (Strings.TryGetValue(raceGenderClass, out stringsForRgc))
                     {
-                        stringData = Strings[skill.TemplateId][skill.SkillId];
-                    }
-                    catch
-                    {
-                        stringData = null;
+                        stringsForRgc.TryGetValue(skill.SkillId, out stringData);
                     }
 
                     if (stringData != null)
@@ -162,11 +167,11 @@ namespace DataTools.Parsers.DC
                     }
                     else
                     {
-                        skill.Name = "UNK";
+                        skill.Name = "";
                         skill.Tooltip = "";
                     }
 
-                    UserSkills[skill.TemplateId].Add(skill.SkillId, skill);
+                    UserSkills[raceGenderClass].Add(skill.SkillId, skill);
                     count++;
                 }
             }
@@ -189,7 +194,7 @@ namespace DataTools.Parsers.DC
                 if (!Skills.ContainsKey(huntingZoneId))
                     Skills.Add(huntingZoneId, new Dictionary<int, Dictionary<int, Skill>>());
 
-                foreach (var data in (List<Dictionary<string, object>>) values["Skill"])
+                foreach (var data in (List<Dictionary<string, object>>)values["Skill"])
                 {
                     Skill skill = ParseSkill(huntingZoneId, data);
 
@@ -280,9 +285,9 @@ namespace DataTools.Parsers.DC
 
             //Drain
 
-            skill.Precondition = ParsePrecondition(((List<Dictionary<string, object>>) data["Precondition"])[0]);
+            skill.Precondition = ParsePrecondition(((List<Dictionary<string, object>>)data["Precondition"])[0]);
 
-            skill.ProjectileData = ParseProjectileData(((List<Dictionary<string, object>>) data["Projectile"])[0]);
+            skill.ProjectileData = ParseProjectileData(((List<Dictionary<string, object>>)data["Projectile"])[0]);
 
             if (data.ContainsKey("TargetingList"))
             {
@@ -293,7 +298,7 @@ namespace DataTools.Parsers.DC
                     if (!targetingListData.ContainsKey("Targeting"))
                         continue;
 
-                    foreach (var targetingData in (List<Dictionary<string, object>>) targetingListData["Targeting"])
+                    foreach (var targetingData in (List<Dictionary<string, object>>)targetingListData["Targeting"])
                         targetingList.Add(ParseTargeting(targetingData));
                 }
 
@@ -329,7 +334,7 @@ namespace DataTools.Parsers.DC
 
             precondition.ModeNo = int.Parse(data["modeNo"].ToString());
 
-            var costData = ((List<Dictionary<string, object>>) data["Cost"])[0];
+            var costData = ((List<Dictionary<string, object>>)data["Cost"])[0];
 
             precondition.Cost = new Cost
                                     {
@@ -358,12 +363,12 @@ namespace DataTools.Parsers.DC
 
             if (data.ContainsKey("TargetingList"))
             {
-                foreach (var targetingListData in (List<Dictionary<string, object>>) data["TargetingList"])
+                foreach (var targetingListData in (List<Dictionary<string, object>>)data["TargetingList"])
                 {
                     if (!targetingListData.ContainsKey("Targeting"))
                         continue;
 
-                    foreach (var targetingData in (List<Dictionary<string, object>>) targetingListData["Targeting"])
+                    foreach (var targetingData in (List<Dictionary<string, object>>)targetingListData["Targeting"])
                         projectile.TargetingList.Add(ParseTargeting(targetingData));
                 }
             }
@@ -375,7 +380,7 @@ namespace DataTools.Parsers.DC
         {
             SkillAction action = new SkillAction();
 
-            Dictionary<string, object> cancelData = ((List<Dictionary<string, object>>) data["Cancel"])[0];
+            Dictionary<string, object> cancelData = ((List<Dictionary<string, object>>)data["Cancel"])[0];
 
             action.FrontCancelEndTime = int.Parse(cancelData["frontCancelEndTime"].ToString());
 
@@ -408,7 +413,8 @@ namespace DataTools.Parsers.DC
         {
             ActionStage stage = new ActionStage();
 
-            stage.Movable = bool.Parse(data["movable"].ToString());
+            if (data.ContainsKey("movable"))
+                stage.Movable = bool.Parse(data["movable"].ToString());
 
             if (data.ContainsKey("scriptId"))
                 stage.ScriptId = int.Parse(data["scriptId"].ToString());
@@ -459,13 +465,15 @@ namespace DataTools.Parsers.DC
 
             anim.Looping = bool.Parse(data["bAnimLooping"].ToString());
 
-            anim.LoopingRate = float.Parse(data["loopingRate"].ToString());
+            if (data.ContainsKey("loopingRate"))
+                anim.LoopingRate = float.Parse(data["loopingRate"].ToString());
 
             anim.RootMotionXYRate = float.Parse(data["rootMotionXYRate"].ToString());
 
             anim.RootMotionZRate = float.Parse(data["rootMotionZRate"].ToString());
 
-            anim.MotionId = int.Parse(data["animMotionId"].ToString());
+            if (data.ContainsKey("animMotionId"))
+                anim.MotionId = int.Parse(data["animMotionId"].ToString());
 
             return anim;
         }
@@ -478,13 +486,13 @@ namespace DataTools.Parsers.DC
                 targeting.Id = int.Parse(data["id"].ToString());
 
             if (data.ContainsKey("method"))
-                targeting.Method = (TargetingMethod) Enum.Parse(
-                    typeof (TargetingMethod), data["method"].ToString().Replace("_", ""), true);
+                targeting.Method = (TargetingMethod)Enum.Parse(
+                    typeof(TargetingMethod), data["method"].ToString().Replace("_", ""), true);
 
             if (data.ContainsKey("type"))
             {
-                targeting.Type = (TargetingType) Enum.Parse(
-                    typeof (TargetingType), data["type"].ToString().Replace("_", ""), true);
+                targeting.Type = (TargetingType)Enum.Parse(
+                    typeof(TargetingType), data["type"].ToString().Replace("_", ""), true);
             }
 
             if (data.ContainsKey("time"))
@@ -508,19 +516,19 @@ namespace DataTools.Parsers.DC
 
             if (data.ContainsKey("AreaList"))
             {
-                foreach (var targetingAreaListData in (List<Dictionary<string, object>>) data["AreaList"])
+                foreach (var targetingAreaListData in (List<Dictionary<string, object>>)data["AreaList"])
                 {
                     if (targetingAreaListData.Count < 1)
                         continue;
 
-                    foreach (var targetingAreaData in (List<Dictionary<string, object>>) targetingAreaListData["Area"])
+                    foreach (var targetingAreaData in (List<Dictionary<string, object>>)targetingAreaListData["Area"])
                         targeting.AreaList.Add(ParseTargetingArea(targetingAreaData));
                 }
             }
 
             if (data.ContainsKey("Cost"))
             {
-                foreach (var costData in (List<Dictionary<string, object>>) data["Cost"])
+                foreach (var costData in (List<Dictionary<string, object>>)data["Cost"])
                 {
                     targeting.Cost = new Cost
                                          {
@@ -536,12 +544,12 @@ namespace DataTools.Parsers.DC
 
             if (data.ContainsKey("ProjectileSkillList"))
             {
-                foreach (var pslData in (List<Dictionary<string, object>>) data["ProjectileSkillList"])
+                foreach (var pslData in (List<Dictionary<string, object>>)data["ProjectileSkillList"])
                 {
                     if (!pslData.ContainsKey("ProjectileSkill"))
                         continue;
 
-                    foreach (var psData in (List<Dictionary<string, object>>) pslData["ProjectileSkill"])
+                    foreach (var psData in (List<Dictionary<string, object>>)pslData["ProjectileSkill"])
                     {
                         targeting.ProjectileSkillList.Add(ParseProjectileSkill(psData));
                     }
@@ -559,11 +567,11 @@ namespace DataTools.Parsers.DC
 
             skill.DetachAngle = int.Parse(data["detachAngle"].ToString());
 
-            skill.DetachDistance = int.Parse(data["detachDistance"].ToString());
+            skill.DetachDistance = (int)double.Parse(data["detachDistance"].ToString(), CultureInfo.InvariantCulture);
 
-            skill.DetachHeight = int.Parse(data["detachHeight"].ToString());
+            skill.DetachHeight = (int)double.Parse(data["detachHeight"].ToString(), CultureInfo.InvariantCulture);
 
-            skill.FlyingDistance = float.Parse(data["flyingDistance"].ToString());
+            skill.FlyingDistance = float.Parse(data["flyingDistance"].ToString(), CultureInfo.InvariantCulture);
 
             if (data.ContainsKey("shootAngle"))
                 skill.ShootAngle = int.Parse(data["shootAngle"].ToString());
@@ -698,7 +706,7 @@ namespace DataTools.Parsers.DC
             foreach (var stageData in (List<Dictionary<string, object>>)data["ChargeStage"]) //1..*
                 stageList.ChargeStageList.Add(ParseChargeStage(stageData));
 
-            var intervalData = ((List<Dictionary<string, object>>) data["Interval"])[0];
+            var intervalData = ((List<Dictionary<string, object>>)data["Interval"])[0];
 
             stageList.IntervalCostHpRate = float.Parse(intervalData["costHpRate"].ToString());
 
@@ -730,22 +738,26 @@ namespace DataTools.Parsers.DC
                 {
                     DefaultSkillSet set = new DefaultSkillSet();
 
-                    set.RaceGenderClass
-                        = new RaceGenderClass
-                              {
-                                  Race = (Race) Enum.Parse(typeof (Race), data["race"].ToString()),
-                                  Gender = (Gender) Enum.Parse(typeof (Gender), data["gender"].ToString()),
-                                  Class = (PlayerClass) Enum.Parse(typeof (PlayerClass), data["class"].ToString()),
-                              };
+                    var raceGenderClass
+                        = new MyRaceGenderClass
+                              (
+                                 data["race"].ToString(),
+                                  data["gender"].ToString(),
+                                   data["class"].ToString()
+                              );
 
                     string[] skills = data["activeSkillIdList"].ToString().Split(';');
 
                     set.SkillSet = new List<int>();
 
                     foreach (var skill in skills)
-                        set.SkillSet.Add(int.Parse(skill));
+                    {
+                        int skillInt;
+                        if (int.TryParse(skill, out skillInt))
+                            set.SkillSet.Add(skillInt);
+                    }
 
-                    DefaultSkillSets.Add(set.RaceGenderClass.Hash, set);
+                    DefaultSkillSets.Add(raceGenderClass, set);
                 }
             }
 
