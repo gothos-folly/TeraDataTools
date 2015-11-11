@@ -6,6 +6,7 @@
         Medium = 2,
         Large = 3,
         All = 4,
-        Player = 5
+        Player = 5,
+        None
     }
 }

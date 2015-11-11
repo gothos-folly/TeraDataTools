@@ -14,7 +14,7 @@ namespace DataTools.Parsers.DC
 {
     class NpcParser
     {
-        public static Dictionary<int, Dictionary<int, KeyValuePair<string, NpcTitle>>> NpcNames;
+        public static Dictionary<int, Dictionary<int, KeyValuePair<string, string>>> NpcNames;
 
         public static Dictionary<int, NpcShape> Shapes;
 
@@ -47,7 +47,7 @@ namespace DataTools.Parsers.DC
 
         private static void ParseNpcNames()
         {
-            NpcNames = new Dictionary<int, Dictionary<int, KeyValuePair<string, NpcTitle>>>();
+            NpcNames = new Dictionary<int, Dictionary<int, KeyValuePair<string, string>>>();
             DataCenter dc = DCT.GetDataCenter();
             int count = 0;
             var objects = dc.GetObjectsByName("StrSheet_Creature");
@@ -62,23 +62,22 @@ namespace DataTools.Parsers.DC
                     if (huntingZoneId == 0)
                         continue;
 
-                    NpcNames.Add(huntingZoneId, new Dictionary<int, KeyValuePair<string, NpcTitle>>());
+                    NpcNames.Add(huntingZoneId, new Dictionary<int, KeyValuePair<string, string>>());
 
                     foreach (var data in (List<Dictionary<string, object>>) zoneData["String"])
                     {
                         int id = int.Parse(data["templateId"].ToString());
 
-                        string name = "";
+                        string name = null;
 
                         if (data.ContainsKey("name"))
                             name = data["name"].ToString();
 
-                        NpcTitle title = NpcTitle.None;
-
+                        string title = null;
                         if (data.ContainsKey("title") && data["title"].ToString().Length > 0)
-                            title = (data["title"] != "") ? ParseEnum<NpcTitle>(data["title"]) : NpcTitle.None;
+                            title = data["title"].ToString();
 
-                        NpcNames[huntingZoneId].Add(id, new KeyValuePair<string, NpcTitle>(name, title));
+                        NpcNames[huntingZoneId].Add(id, new KeyValuePair<string, string>(name, title));
                         count++;
                     }
                 }
@@ -167,8 +166,8 @@ namespace DataTools.Parsers.DC
                         template.Level = 1;
                     }
 
-                    template.Name = "";
-                    template.Title = NpcTitle.None;
+                    template.Name = null;
+                    template.Title =null;
 
                     if (NpcNames.ContainsKey(huntingZoneId) && NpcNames[huntingZoneId].ContainsKey(template.Id))
                     {
@@ -193,9 +192,9 @@ namespace DataTools.Parsers.DC
                         }
 
                     if (data.ContainsKey("race") && data["race"].ToString().Length > 0)
-                        template.Race = (data["race"] != "") ? ParseEnum<NpcRace>(data["race"]) : NpcRace.None;
+                        template.Race = data["race"].ToString();
                     else
-                        template.Race = NpcRace.None;
+                        template.Race = null;
 
                     if (data.ContainsKey("parentId"))
                         template.ParentId = int.Parse(data["parentId"].ToString());

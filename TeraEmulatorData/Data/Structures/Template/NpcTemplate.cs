@@ -34,7 +34,7 @@ namespace Data.Structures.Template
         public string Name { get; set; }
 
         [ProtoBuf.ProtoMember(8)]
-        public NpcTitle Title { get; set; }
+        public string Title { get; set; }
 
         //resourceSize
 
@@ -46,7 +46,7 @@ namespace Data.Structures.Template
         public Gender Gender { get; set; }
 
         [ProtoBuf.ProtoMember(13)]
-        public NpcRace Race { get; set; }
+        public string Race { get; set; }
 
         [ProtoBuf.ProtoMember(14)]
         public int ParentId { get; set; }
@@ -139,7 +139,7 @@ namespace Data.Structures.Template
         public NpcTemplate()
         {
             Size = NpcSize.Medium;
-            Race = NpcRace.None;
+            Race = null;
         }
 
         private static CreatureBaseStats CalculateGameStats(NpcTemplate template)
