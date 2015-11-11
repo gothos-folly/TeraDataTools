@@ -34,9 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Data">
-      <HintPath>..\libs\Data.dll</HintPath>
-    </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\libs\protobuf-net.dll</HintPath>
     </Reference>
@@ -51,10 +48,6 @@
     </Reference>
     <Reference Include="TargaImage">
       <HintPath>..\libs\TargaImage.dll</HintPath>
-    </Reference>
-    <Reference Include="Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libs\Utils.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -182,6 +175,10 @@
     <ProjectReference Include="..\DCTools\DCTools.csproj">
       <Project>{cf448cfa-fbb2-40b6-afa9-1f7a8c7b3012}</Project>
       <Name>DCTools</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TeraEmulatorData\TeraEmulatorData.csproj">
+      <Project>{dd46ff37-f795-4f9b-9d9c-ee834ce6a3e8}</Project>
+      <Name>TeraEmulatorData</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
