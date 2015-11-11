@@ -28,7 +28,7 @@ namespace DataTools.Parsers.DC
             List<string> names = ByNames.Keys.ToList();
             names.Sort();
 
-            using (TextWriter writer = new StreamWriter("../../../../datapack/abnormalities.txt"))
+            using (TextWriter writer = new StreamWriter("data/abnormalities.txt"))
             {
                 foreach (string name in names)
                 {
@@ -44,7 +44,7 @@ namespace DataTools.Parsers.DC
 
             ParseAbnormality();
 
-            string binPath = Path.GetFullPath("../../../../datapack/gameserver/data/");
+            string binPath = Path.GetFullPath("data/");
 
             using (FileStream fs = File.Create(binPath + "abnormalities.bin"))
             {
@@ -60,12 +60,12 @@ namespace DataTools.Parsers.DC
 
             foreach (var o in DC.GetMainObjectsByName("StrSheet_Abnormality"))
             {
-                foreach (var data in (List<Dictionary<string, object>>) DC.GetValues(o)["String"])
+                foreach (var data in (List<Dictionary<string, object>>)DC.GetValues(o)["String"])
                 {
                     int id = int.Parse(data["id"].ToString());
-                    
-                    string name = data["name"].ToString();
-                    string tooltip = data["tooltip"].ToString();
+
+                    string name = (string)data.GetValueOrDefault("name");
+                    string tooltip = (string)data.GetValueOrDefault("tooltip", "");
 
                     Names.Add(id, new KeyValuePair<string, string>(name, tooltip));
 
@@ -88,7 +88,7 @@ namespace DataTools.Parsers.DC
 
             foreach (var o in DC.GetMainObjectsByName("Abnormality"))
             {
-                foreach (var data in (List<Dictionary<string, object>>) DC.GetValues(o)["Abnormal"])
+                foreach (var data in (List<Dictionary<string, object>>)DC.GetValues(o)["Abnormal"])
                 {
                     Abnormality abnormality = new Abnormality();
 
@@ -108,17 +108,17 @@ namespace DataTools.Parsers.DC
 
                     abnormality.Property = int.Parse(data["property"].ToString());
 
-                    abnormality.Time = int.Parse(data["time"].ToString());
+                    abnormality.Time = data.GetLong("time");
 
                     abnormality.IsShow = ParseEnum<AbnormalityShowType>(data["isShow"]);
 
                     abnormality.IsHideOnRefresh = bool.Parse(data["isHideOnRefresh"].ToString());
 
-                    abnormality.BySkillCategory = int.Parse(data["bySkillCategory"].ToString());
+                    abnormality.BySkillCategory = data.GetInt("bySkillCategory");
 
                     if (data.ContainsKey("AbnormalityEffect"))
                     {
-                        foreach (var effectData in (List<Dictionary<string, object>>) data["AbnormalityEffect"])
+                        foreach (var effectData in (List<Dictionary<string, object>>)data["AbnormalityEffect"])
                         {
                             abnormality.Effects.Add(ParseAbnormalityEffect(effectData));
                         }
@@ -146,27 +146,27 @@ namespace DataTools.Parsers.DC
         {
             AbnormalityEffect effect = new AbnormalityEffect();
 
-            effect.AppearEffectId = int.Parse(data["appearEffectId"].ToString());
+            effect.AppearEffectId = data.GetInt("appearEffectId");
 
-            effect.AttackEffectId = int.Parse(data["attackEffectId"].ToString());
+            effect.AttackEffectId = data.GetInt("attackEffectId");
 
-            effect.DamageEffectId = int.Parse(data["damageEffectId"].ToString());
-            
-            effect.DisappearEffectId = int.Parse(data["disappearEffectId"].ToString());
+            effect.DamageEffectId = data.GetInt("damageEffectId");
 
-            effect.EffectId = int.Parse(data["effectId"].ToString());
+            effect.DisappearEffectId = data.GetInt("disappearEffectId");
 
-            effect.EffectPart = data["effectPart"].ToString();
+            effect.EffectId = data.GetInt("effectId");
 
-            effect.Method = int.Parse(data["method"].ToString());
+            effect.EffectPart =data.GetString("effectPart");
 
-            effect.TickInterval = int.Parse(data["tickInterval"].ToString());
+            effect.Method = data.GetInt("method");
 
-            effect.Type = int.Parse(data["type"].ToString());
+            effect.TickInterval = data.GetInt("tickInterval");
 
-            effect.Value = float.Parse(data["value"].ToString());
+            effect.Type = data.GetInt("type");
 
-            effect.OverlayEffectId = int.Parse(data["overlayEffectId"].ToString());
+            effect.Value = data.GetFloat("value");
+
+            effect.OverlayEffectId = data.GetInt("overlayEffectId");
 
             return effect;
         }

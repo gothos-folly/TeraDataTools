@@ -31,7 +31,7 @@ namespace Data.Structures.SkillEngine
         public int Property { get; set; }
 
         [ProtoBuf.ProtoMember(9)]
-        public int Time { get; set; }
+        public long Time { get; set; }
 
         [ProtoBuf.ProtoMember(10)]
         public AbnormalityShowType IsShow { get; set; }
