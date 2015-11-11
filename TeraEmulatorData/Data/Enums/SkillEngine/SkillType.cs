@@ -32,5 +32,15 @@
         Dash,
         CatchBack,
         ChaseEffect,
+
+        Transform,
+        NoTimelineReviveNow,
+        Change,
+        ShootingMovingSkill,
+        Stone,
+        PositionSwap,
+        Counter,
+        InverseCapture,
+        AiWork,
     }
 }

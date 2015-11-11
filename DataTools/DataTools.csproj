@@ -60,6 +60,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ConsloleManager.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Geo\GeoBuilder.cs" />
     <Compile Include="MountEditor\MountBuilder.cs" />
     <Compile Include="MountEditor\MountEditor.xaml.cs">

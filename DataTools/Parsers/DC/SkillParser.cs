@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using DCTools;
 using DCTools.Structures;
@@ -13,7 +14,7 @@ namespace DataTools.Parsers.DC
 {
     class SkillParser
     {
-        public static Dictionary<int, Dictionary<int, Dictionary<string, object>>> Strings = new Dictionary<int, Dictionary<int, Dictionary<string, object>>>();
+        public static Dictionary<RaceGenderClass, Dictionary<int, Dictionary<string, object>>> Strings = new Dictionary<RaceGenderClass, Dictionary<int, Dictionary<string, object>>>();
 
         public static Dictionary<string, Dictionary<string, Animation>> Animations = new Dictionary<string, Dictionary<string, Animation>>();
 
@@ -21,7 +22,7 @@ namespace DataTools.Parsers.DC
 
         public static Dictionary<int, Dictionary<int, Dictionary<int, Skill>>> Skills = new Dictionary<int, Dictionary<int, Dictionary<int, Skill>>>();
 
-        public static Dictionary<int, DefaultSkillSet> DefaultSkillSets = new Dictionary<int, DefaultSkillSet>();
+        public static Dictionary<RaceGenderClass, DefaultSkillSet> DefaultSkillSets = new Dictionary<RaceGenderClass, DefaultSkillSet>();
 
         public static DataCenter DC = DCT.GetDataCenter();
 
@@ -37,7 +38,7 @@ namespace DataTools.Parsers.DC
 
             ParseDefaultSkillSets();
 
-            string binPath = Path.GetFullPath("../../../../datapack/gameserver/data/");
+            string binPath = Path.GetFullPath("data/");
 
             using (FileStream fs = File.Create(binPath + "default_skill_sets.bin"))
             {
@@ -61,15 +62,15 @@ namespace DataTools.Parsers.DC
 
             foreach (var o in DC.GetMainObjectsByName("StrSheet_UserSkill"))
             {
-                foreach (var data in (List<Dictionary<string, object>>) DC.GetValues(o)["String"])
+                foreach (var data in (List<Dictionary<string, object>>)DC.GetValues(o)["String"])
                 {
-                    int templateId = int.Parse(data["templateId"].ToString());
+                    var rgc = new RaceGenderClass((string)data["race"], (string)data["gender"], (string)data["class"]);
                     int id = int.Parse(data["id"].ToString());
 
-                    if (!Strings.ContainsKey(templateId))
-                        Strings.Add(templateId, new Dictionary<int, Dictionary<string, object>>());
+                    if (!Strings.ContainsKey(rgc))
+                        Strings.Add(rgc, new Dictionary<int, Dictionary<string, object>>());
 
-                    Strings[templateId].Add(id, data);
+                    Strings[rgc].Add(id, data);
                     count++;
                 }
             }
@@ -83,14 +84,14 @@ namespace DataTools.Parsers.DC
 
             foreach (var o in DC.GetMainObjectsByName("AnimationData"))
             {
-                foreach (var setData in (List<Dictionary<string, object>>) DC.GetValues(o)["AnimSet"])
+                foreach (var setData in (List<Dictionary<string, object>>)DC.GetValues(o)["AnimSet"])
                 {
                     string setName = setData["name"].ToString().ToLower();
 
                     if (!Animations.ContainsKey(setName))
                         Animations.Add(setName, new Dictionary<string, Animation>());
 
-                    foreach (var data in (List<Dictionary<string, object>>) setData["Animation"])
+                    foreach (var data in (List<Dictionary<string, object>>)setData["Animation"])
                     {
                         string name = data["name"].ToString().ToLower();
                         Animation animation = new Animation();
@@ -99,7 +100,7 @@ namespace DataTools.Parsers.DC
                         animation.Dir = int.Parse(data["moveDir"].ToString());
 
                         for (int i = 0; i < 7; i++)
-                            animation.Distance.Add(float.Parse(data["moveDistance" + (i +1)].ToString()));
+                            animation.Distance.Add(float.Parse(data["moveDistance" + (i + 1)].ToString()));
 
                         animation.RootMotion = bool.Parse(data["rootMotion"].ToString());
                         animation.RootRotate = bool.Parse(data["rootRotate"].ToString());
@@ -128,13 +129,7 @@ namespace DataTools.Parsers.DC
                     skill.SkillId = int.Parse(data["skillId"].ToString());
                     skill.Level = int.Parse(data["level"].ToString());
 
-                    skill.RaceGenderClass
-                        = new RaceGenderClass
-                              {
-                                  Race = (Race) Enum.Parse(typeof (Race), data["race"].ToString()),
-                                  Gender = (Gender) Enum.Parse(typeof (Gender), data["gender"].ToString()),
-                                  Class = (PlayerClass) Enum.Parse(typeof (PlayerClass), data["class"].ToString()),
-                              };
+                    skill.RaceGenderClass = new RaceGenderClass(data["race"].ToString(), data["gender"].ToString(), data["class"].ToString());
 
                     skill.IsActive = bool.Parse(data["isActive"].ToString());
 
@@ -144,16 +139,11 @@ namespace DataTools.Parsers.DC
                     if (!UserSkills.ContainsKey(skill.TemplateId))
                         UserSkills.Add(skill.TemplateId, new Dictionary<int, UserSkill>());
 
-                    Dictionary<string, object> stringData;
-
-                    try
-                    {
-                        stringData = Strings[skill.TemplateId][skill.SkillId];
-                    }
-                    catch
-                    {
-                        stringData = null;
-                    }
+                    Dictionary<string, object> stringData = null;
+                    Dictionary<int, Dictionary<string, object>> rgcStrings;
+                    Strings.TryGetValue(skill.RaceGenderClass, out rgcStrings);
+                    if (rgcStrings != null)
+                        rgcStrings.TryGetValue(skill.SkillId, out stringData);
 
                     if (stringData != null)
                     {
@@ -162,8 +152,8 @@ namespace DataTools.Parsers.DC
                     }
                     else
                     {
-                        skill.Name = "UNK";
-                        skill.Tooltip = "";
+                        skill.Name = null;
+                        skill.Tooltip = null;
                     }
 
                     UserSkills[skill.TemplateId].Add(skill.SkillId, skill);
@@ -189,14 +179,14 @@ namespace DataTools.Parsers.DC
                 if (!Skills.ContainsKey(huntingZoneId))
                     Skills.Add(huntingZoneId, new Dictionary<int, Dictionary<int, Skill>>());
 
-                foreach (var data in (List<Dictionary<string, object>>) values["Skill"])
+                foreach (var data in (List<Dictionary<string, object>>)values["Skill"])
                 {
                     Skill skill = ParseSkill(huntingZoneId, data);
 
                     if (!Skills[huntingZoneId].ContainsKey(skill.TemplateId))
                         Skills[huntingZoneId].Add(skill.TemplateId, new Dictionary<int, Skill>());
 
-                    Skills[huntingZoneId][skill.TemplateId].Add(skill.Id, skill);
+                    Skills[huntingZoneId][skill.TemplateId][skill.Id] = skill;//overwrites duplicates, I'm too lazy to figure out why duplicates exist
                     count++;
                 }
             }
@@ -213,7 +203,7 @@ namespace DataTools.Parsers.DC
             if (data.ContainsKey("parentId"))
                 skill.ParentId = int.Parse(data["parentId"].ToString());
 
-            skill.Type = (SkillType) Enum.Parse(typeof (SkillType), data["type"].ToString().Replace("_", ""), true);
+            skill.Type = (SkillType)Enum.Parse(typeof(SkillType), data["type"].ToString().Replace("_", ""), true);
 
             skill.Name = data["name"].ToString();
 
@@ -227,10 +217,10 @@ namespace DataTools.Parsers.DC
 
             skill.PushTarget = (PushTarget)Enum.Parse(typeof(PushTarget), data["pushtarget"].ToString().Replace("_", ""), true);
 
-            string animSet = data["returnAnimSet"].ToString().ToLower();
-            string animName = data["returnAnimName"].ToString().ToLower();
+            string animSet = data.GetValueOrDefault("returnAnimSet").Map(x => x.ToString().ToLower());
+            string animName = data.GetValueOrDefault("returnAnimName").Map(x => x.ToString().ToLower());
 
-            skill.Animation = animSet.Length > 0 && animName.Length > 0 ? Animations[animSet][animName] : null;
+            skill.Animation = Animations.GetValueOrDefault(animSet).Map(x => x.GetValueOrDefault(animName));
 
             if (data.ContainsKey("autoUse"))
                 skill.AutoUse = bool.Parse(data["autoUse"].ToString());
@@ -247,7 +237,7 @@ namespace DataTools.Parsers.DC
             if (data.ContainsKey("timeRate"))
                 skill.TimeRate = float.Parse(data["timeRate"].ToString());
 
-            if (data.ContainsKey("totalAtk"))
+            if (data.ContainsKey("totalAtk") && !string.IsNullOrEmpty(data["totalAtk"].ToString()))
                 skill.TotalAtk = float.Parse(data["totalAtk"].ToString());
 
             //__value__
@@ -280,9 +270,10 @@ namespace DataTools.Parsers.DC
 
             //Drain
 
-            skill.Precondition = ParsePrecondition(((List<Dictionary<string, object>>) data["Precondition"])[0]);
+            skill.Precondition = ParsePrecondition(((List<Dictionary<string, object>>)data["Precondition"])[0]);
 
-            skill.ProjectileData = ParseProjectileData(((List<Dictionary<string, object>>) data["Projectile"])[0]);
+            if (data.ContainsKey("Projectile"))
+                skill.ProjectileData = ParseProjectileData(((List<Dictionary<string, object>>)data["Projectile"])[0]);
 
             if (data.ContainsKey("TargetingList"))
             {
@@ -293,7 +284,7 @@ namespace DataTools.Parsers.DC
                     if (!targetingListData.ContainsKey("Targeting"))
                         continue;
 
-                    foreach (var targetingData in (List<Dictionary<string, object>>) targetingListData["Targeting"])
+                    foreach (var targetingData in (List<Dictionary<string, object>>)targetingListData["Targeting"])
                         targetingList.Add(ParseTargeting(targetingData));
                 }
 
@@ -329,13 +320,13 @@ namespace DataTools.Parsers.DC
 
             precondition.ModeNo = int.Parse(data["modeNo"].ToString());
 
-            var costData = ((List<Dictionary<string, object>>) data["Cost"])[0];
+            var costData = ((List<Dictionary<string, object>>)data["Cost"])[0];
 
-            precondition.Cost = new Cost
-                                    {
-                                        Hp = int.Parse(costData["hp"].ToString()),
-                                        Mp = int.Parse(costData["mp"].ToString())
-                                    };
+            precondition.Cost = new Cost();
+            if (costData.ContainsKey("hp"))
+                precondition.Cost.Hp = int.Parse(costData["hp"].ToString());
+            if (costData.ContainsKey("mp"))
+                precondition.Cost.Mp = int.Parse(costData["mp"].ToString());
 
             precondition.ExclusiveAbnormality = 0;
 
@@ -358,12 +349,12 @@ namespace DataTools.Parsers.DC
 
             if (data.ContainsKey("TargetingList"))
             {
-                foreach (var targetingListData in (List<Dictionary<string, object>>) data["TargetingList"])
+                foreach (var targetingListData in (List<Dictionary<string, object>>)data["TargetingList"])
                 {
                     if (!targetingListData.ContainsKey("Targeting"))
                         continue;
 
-                    foreach (var targetingData in (List<Dictionary<string, object>>) targetingListData["Targeting"])
+                    foreach (var targetingData in (List<Dictionary<string, object>>)targetingListData["Targeting"])
                         projectile.TargetingList.Add(ParseTargeting(targetingData));
                 }
             }
@@ -375,7 +366,7 @@ namespace DataTools.Parsers.DC
         {
             SkillAction action = new SkillAction();
 
-            Dictionary<string, object> cancelData = ((List<Dictionary<string, object>>) data["Cancel"])[0];
+            Dictionary<string, object> cancelData = ((List<Dictionary<string, object>>)data["Cancel"])[0];
 
             action.FrontCancelEndTime = int.Parse(cancelData["frontCancelEndTime"].ToString());
 
@@ -408,7 +399,8 @@ namespace DataTools.Parsers.DC
         {
             ActionStage stage = new ActionStage();
 
-            stage.Movable = bool.Parse(data["movable"].ToString());
+            if (data.ContainsKey("movable"))
+                stage.Movable = bool.Parse(data["movable"].ToString());
 
             if (data.ContainsKey("scriptId"))
                 stage.ScriptId = int.Parse(data["scriptId"].ToString());
@@ -431,7 +423,7 @@ namespace DataTools.Parsers.DC
             string animSet = data["animSet"].ToString().ToLower();
             string animName = data["animName"].ToString().ToLower().Replace("_(test)", "");
 
-            if (animName.Length > 0)
+            if (!string.IsNullOrEmpty(animName) && !string.IsNullOrEmpty(animSet))
                 if (Animations[animSet].ContainsKey(animName))
                     anim.Animation = Animations[animSet][animName];
 
@@ -459,13 +451,15 @@ namespace DataTools.Parsers.DC
 
             anim.Looping = bool.Parse(data["bAnimLooping"].ToString());
 
-            anim.LoopingRate = float.Parse(data["loopingRate"].ToString());
+            if (data.ContainsKey("loopingRate"))
+                anim.LoopingRate = float.Parse(data["loopingRate"].ToString());
 
-            anim.RootMotionXYRate = float.Parse(data["rootMotionXYRate"].ToString());
+            anim.RootMotionXYRate = data.GetValueOrDefault("rootMotionXYRate").Map(x => float.Parse(x.ToString()));
 
             anim.RootMotionZRate = float.Parse(data["rootMotionZRate"].ToString());
 
-            anim.MotionId = int.Parse(data["animMotionId"].ToString());
+            if (data.ContainsKey("animMotionId"))
+                anim.MotionId = int.Parse(data["animMotionId"].ToString());
 
             return anim;
         }
@@ -478,13 +472,13 @@ namespace DataTools.Parsers.DC
                 targeting.Id = int.Parse(data["id"].ToString());
 
             if (data.ContainsKey("method"))
-                targeting.Method = (TargetingMethod) Enum.Parse(
-                    typeof (TargetingMethod), data["method"].ToString().Replace("_", ""), true);
+                targeting.Method = (TargetingMethod)Enum.Parse(
+                    typeof(TargetingMethod), data["method"].ToString().Replace("_", ""), true);
 
             if (data.ContainsKey("type"))
             {
-                targeting.Type = (TargetingType) Enum.Parse(
-                    typeof (TargetingType), data["type"].ToString().Replace("_", ""), true);
+                targeting.Type = (TargetingType)Enum.Parse(
+                    typeof(TargetingType), data["type"].ToString().Replace("_", ""), true);
             }
 
             if (data.ContainsKey("time"))
@@ -508,26 +502,25 @@ namespace DataTools.Parsers.DC
 
             if (data.ContainsKey("AreaList"))
             {
-                foreach (var targetingAreaListData in (List<Dictionary<string, object>>) data["AreaList"])
+                foreach (var targetingAreaListData in (List<Dictionary<string, object>>)data["AreaList"])
                 {
                     if (targetingAreaListData.Count < 1)
                         continue;
 
-                    foreach (var targetingAreaData in (List<Dictionary<string, object>>) targetingAreaListData["Area"])
+                    foreach (var targetingAreaData in (List<Dictionary<string, object>>)targetingAreaListData["Area"])
                         targeting.AreaList.Add(ParseTargetingArea(targetingAreaData));
                 }
             }
 
             if (data.ContainsKey("Cost"))
             {
-                foreach (var costData in (List<Dictionary<string, object>>) data["Cost"])
+                foreach (var costData in (List<Dictionary<string, object>>)data["Cost"])
                 {
-                    targeting.Cost = new Cost
-                                         {
-                                             Hp = int.Parse(costData["hp"].ToString()),
-                                             Mp = int.Parse(costData["mp"].ToString())
-                                         };
-
+                    targeting.Cost = new Cost();
+                    if (costData.ContainsKey("hp"))
+                        targeting.Cost.Hp = int.Parse(costData["hp"].ToString());
+                    if (costData.ContainsKey("mp"))
+                        targeting.Cost.Hp = int.Parse(costData["mp"].ToString());
                     break;
                 }
             }
@@ -536,12 +529,12 @@ namespace DataTools.Parsers.DC
 
             if (data.ContainsKey("ProjectileSkillList"))
             {
-                foreach (var pslData in (List<Dictionary<string, object>>) data["ProjectileSkillList"])
+                foreach (var pslData in (List<Dictionary<string, object>>)data["ProjectileSkillList"])
                 {
                     if (!pslData.ContainsKey("ProjectileSkill"))
                         continue;
 
-                    foreach (var psData in (List<Dictionary<string, object>>) pslData["ProjectileSkill"])
+                    foreach (var psData in (List<Dictionary<string, object>>)pslData["ProjectileSkill"])
                     {
                         targeting.ProjectileSkillList.Add(ParseProjectileSkill(psData));
                     }
@@ -559,9 +552,9 @@ namespace DataTools.Parsers.DC
 
             skill.DetachAngle = int.Parse(data["detachAngle"].ToString());
 
-            skill.DetachDistance = int.Parse(data["detachDistance"].ToString());
+            skill.DetachDistance = float.Parse(data["detachDistance"].ToString(), CultureInfo.InvariantCulture);
 
-            skill.DetachHeight = int.Parse(data["detachHeight"].ToString());
+            skill.DetachHeight = float.Parse(data["detachHeight"].ToString(), CultureInfo.InvariantCulture);
 
             skill.FlyingDistance = float.Parse(data["flyingDistance"].ToString());
 
@@ -576,8 +569,8 @@ namespace DataTools.Parsers.DC
             TargetingArea area = new TargetingArea();
 
             if (data.ContainsKey("type"))
-                area.Type = (TargetingAreaType) Enum.Parse(
-                    typeof (TargetingAreaType), data["type"].ToString().Replace("_", ""), true);
+                area.Type = (TargetingAreaType)Enum.Parse(
+                    typeof(TargetingAreaType), data["type"].ToString().Replace("_", ""), true);
             else
                 area.Type = TargetingAreaType.EnemyOrPvP;
 
@@ -617,13 +610,13 @@ namespace DataTools.Parsers.DC
             if (data.ContainsKey("crosshairRadius2"))
                 area.CrosshairRadius2 = int.Parse(data["crosshairRadius2"].ToString());
 
-            area.Effect = ParseAreaEffect(((List<Dictionary<string, object>>) data["Effect"])[0]);
+            area.Effect = ParseAreaEffect(((List<Dictionary<string, object>>)data["Effect"])[0]);
 
             //HitEffect
 
             if (data.ContainsKey("Reaction"))
             {
-                Dictionary<string, object> reactionData = ((List<Dictionary<string, object>>) data["Reaction"])[0];
+                Dictionary<string, object> reactionData = ((List<Dictionary<string, object>>)data["Reaction"])[0];
 
                 area.ReactionBasicRate = float.Parse(reactionData["basicRate"].ToString());
                 area.ReactionMiniRate = float.Parse(reactionData["miniRate"].ToString());
@@ -698,7 +691,7 @@ namespace DataTools.Parsers.DC
             foreach (var stageData in (List<Dictionary<string, object>>)data["ChargeStage"]) //1..*
                 stageList.ChargeStageList.Add(ParseChargeStage(stageData));
 
-            var intervalData = ((List<Dictionary<string, object>>) data["Interval"])[0];
+            var intervalData = ((List<Dictionary<string, object>>)data["Interval"])[0];
 
             stageList.IntervalCostHpRate = float.Parse(intervalData["costHpRate"].ToString());
 
@@ -730,22 +723,16 @@ namespace DataTools.Parsers.DC
                 {
                     DefaultSkillSet set = new DefaultSkillSet();
 
-                    set.RaceGenderClass
-                        = new RaceGenderClass
-                              {
-                                  Race = (Race) Enum.Parse(typeof (Race), data["race"].ToString()),
-                                  Gender = (Gender) Enum.Parse(typeof (Gender), data["gender"].ToString()),
-                                  Class = (PlayerClass) Enum.Parse(typeof (PlayerClass), data["class"].ToString()),
-                              };
+                    set.RaceGenderClass = new RaceGenderClass((string)data["race"], (string)data["gender"], (string)data["class"]);
 
                     string[] skills = data["activeSkillIdList"].ToString().Split(';');
 
-                    set.SkillSet = new List<int>();
+                    set.SkillSet = new List<string>();
 
                     foreach (var skill in skills)
-                        set.SkillSet.Add(int.Parse(skill));
+                        set.SkillSet.Add(skill);
 
-                    DefaultSkillSets.Add(set.RaceGenderClass.Hash, set);
+                    DefaultSkillSets.Add(set.RaceGenderClass, set);
                 }
             }
 

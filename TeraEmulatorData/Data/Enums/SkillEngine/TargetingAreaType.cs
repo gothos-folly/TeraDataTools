@@ -16,5 +16,10 @@
         PartyExceptMe,
         AllExceptMe,
         No,
+        NoneUnion,
+        Raid,
+        RaidExceptMe,
+        ExceptAll,
+        AllPcExceptMe,
     }
 }

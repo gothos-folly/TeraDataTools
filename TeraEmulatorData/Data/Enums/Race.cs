@@ -2,6 +2,8 @@
 {
     public enum Race
     {
+        Common = -1,
+
         Human = 0,
         HighElf = 1,
         Aman = 2,

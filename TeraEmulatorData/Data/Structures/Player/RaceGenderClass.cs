@@ -1,4 +1,5 @@
-﻿using Data.Enums;
+﻿using System;
+using Data.Enums;
 
 namespace Data.Structures.Player
 {
@@ -22,12 +23,32 @@ namespace Data.Structures.Player
             {
                 if (_hash == 0)
                     _hash = 10101
-                            + 200*Race.GetHashCode()
-                            + 100*Gender.GetHashCode() +
+                            + 200 * Race.GetHashCode()
+                            + 100 * Gender.GetHashCode() +
                             Class.GetHashCode();
 
                 return _hash;
             }
+        }
+
+        public RaceGenderClass(string race, string gender, string @class)
+        {
+            Race = (Race)Enum.Parse(typeof(Race), race, true);
+            Gender = (Gender)Enum.Parse(typeof(Gender), gender);
+            Class = PlayerClassHelper.Parse(@class);
+        }
+
+        public override int GetHashCode()
+        {
+            return Hash;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as RaceGenderClass;
+            if (other == null)
+                return false;
+            return (Gender == other.Gender) && (Race == other.Race) && (Class == other.Class);
         }
     }
 }

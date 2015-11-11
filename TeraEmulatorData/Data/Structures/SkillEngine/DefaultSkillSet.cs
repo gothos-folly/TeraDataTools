@@ -10,6 +10,6 @@ namespace Data.Structures.SkillEngine
         public RaceGenderClass RaceGenderClass { get; set; }
 
         [ProtoBuf.ProtoMember(2)]
-        public List<int> SkillSet { get; set; }
+        public List<string> SkillSet { get; set; }
     }
 }

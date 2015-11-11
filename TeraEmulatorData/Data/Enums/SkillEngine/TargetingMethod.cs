@@ -8,5 +8,9 @@
         RealForward,
         SpiritAttack,
         SpiritFollow,
+        RangeLockOn,
+        SpiritUseSkill,
+        SpiritStandBy,
+        Collect,
     }
 }

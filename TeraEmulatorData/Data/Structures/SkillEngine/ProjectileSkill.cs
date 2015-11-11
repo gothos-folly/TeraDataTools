@@ -10,10 +10,10 @@
         public int DetachAngle { get; set; }
 
         [ProtoBuf.ProtoMember(3)]
-        public int DetachDistance { get; set; }
+        public float DetachDistance { get; set; }
 
         [ProtoBuf.ProtoMember(4)]
-        public int DetachHeight { get; set; }
+        public float DetachHeight { get; set; }
 
         [ProtoBuf.ProtoMember(5)]
         public float FlyingDistance { get; set; }
