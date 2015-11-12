@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\libs\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\libs\protobuf-net.dll</HintPath>
     </Reference>
@@ -74,6 +77,7 @@
     <Compile Include="Parsers\DC\ContinentParser.cs" />
     <Compile Include="Parsers\DC\CooldownGroupsParser.cs" />
     <Compile Include="Parsers\DC\GatherParser.cs" />
+    <Compile Include="Parsers\DC\JsonDumper.cs" />
     <Compile Include="Parsers\DC\NpcParser.cs" />
     <Compile Include="Parsers\DC\PegasusPathParser.cs" />
     <Compile Include="Parsers\DC\SkillParser.cs" />

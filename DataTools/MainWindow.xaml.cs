@@ -30,6 +30,7 @@ namespace DataTools
             AddButton("PegasusPath parser", Parsers.DC.PegasusPathParser.Parse);
             AddButton("CooldownGroups parser", Parsers.DC.CooldownGroupsParser.Parse);
             AddButton("Collections parser", Parsers.DC.GatherParser.Parse);
+            AddButton("Json dump", Parsers.DC.JsonDumper.Parse);
 
             AddLabel("teratome.com:");
             AddButton("Drop parser", Parsers.Teratome.DropParser.Parse);
