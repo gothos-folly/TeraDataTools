@@ -1,35 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
-namespace GothosDC
+namespace GothosDC.LowLevel
 {
-    internal class RegionReader : BinaryReader
+    internal class RegionListReader : BinaryReader
     {
         public DataCenterRegions ReadDataCenter()
         {
             var regions = new DataCenterRegions();
-            regions.Header = ReadRegion(0x20);
+            regions.Header = ReadRegion(0x20, 1);
             regions.Unknown0 = ReadSimpleRegion(8);
-            regions.Data = ReadSegmentedRegion(8);
-            regions.Structs = ReadSegmentedRegion(16);
+            regions.Values = ReadSegmentedRegion(8);
+            regions.Elements = ReadSegmentedRegion(16);
             regions.Strings = ReadSegmentedRegion(2);
             regions.Unknown1 = ReadSimpleRegions(16, 1024);
             regions.StringIds = ReadSimpleRegionLengthMinus1(4);
-            regions.Args = ReadSegmentedRegion(2);
+            regions.Names = ReadSegmentedRegion(2);
             regions.Unknown2 = ReadSimpleRegions(16, 512);
-            regions.ArgIds = ReadSimpleRegionLengthMinus1(4);
+            regions.NameIds = ReadSimpleRegionLengthMinus1(4);
             if (BaseStream.Position + 4 != BaseStream.Length)
                 throw new Exception("Did not reach end of file");
             return regions;
         }
 
-        public List<Region> ReadSegmentedRegion(int elementSize)
+        public List<DataCenterRegion> ReadSegmentedRegion(int elementSize)
         {
             int count = ReadInt32();
-            var list = new List<Region>();
+            var list = new List<DataCenterRegion>();
             for (int i = 0; i < count; i++)
             {
                 var region = ReadSegment(elementSize);
@@ -38,16 +37,16 @@ namespace GothosDC
             return list;
         }
 
-        public Region ReadSegment(int elementSize)
+        public DataCenterRegion ReadSegment(int elementSize)
         {
             var blockSize = ReadInt32();
             var usedSize = ReadInt32();
-            return ReadRegion(usedSize * elementSize, blockSize * elementSize);
+            return ReadRegion(usedSize * elementSize, blockSize * elementSize, elementSize);
         }
 
-        public List<Region> ReadSimpleRegions(int elementSize, int count)
+        public List<DataCenterRegion> ReadSimpleRegions(int elementSize, int count)
         {
-            var list = new List<Region>();
+            var list = new List<DataCenterRegion>();
             for (int i = 0; i < count; i++)
             {
                 var region = ReadSimpleRegion(elementSize);
@@ -56,26 +55,26 @@ namespace GothosDC
             return list;
         }
 
-        public Region ReadSimpleRegion(int elementSize)
+        public DataCenterRegion ReadSimpleRegion(int elementSize)
         {
             int count = ReadInt32();
-            return ReadRegion(count * elementSize);
+            return ReadRegion(count * elementSize, elementSize);
         }
 
-        public Region ReadSimpleRegionLengthMinus1(int elementSize)
+        public DataCenterRegion ReadSimpleRegionLengthMinus1(int elementSize)
         {
             int count = ReadInt32() - 1;
-            return ReadRegion(count * elementSize);
+            return ReadRegion(count * elementSize, elementSize);
         }
 
-        private Region ReadRegion(int length)
+        private DataCenterRegion ReadRegion(int length, int elementSize)
         {
-            return ReadRegion(length, length);
+            return ReadRegion(length, length, elementSize);
         }
 
-        private Region ReadRegion(int length, int paddedLength)
+        private DataCenterRegion ReadRegion(int length, int paddedLength, int elementSize)
         {
-            var result = new Region(BaseStream.Position, length, paddedLength);
+            var result = new DataCenterRegion(BaseStream.Position, length, paddedLength, elementSize);
             BaseStream.Position += paddedLength;
             return result;
         }
@@ -89,10 +88,17 @@ namespace GothosDC
         }
 
 
-        public RegionReader(Stream input)
-            : base(input)
+        public RegionListReader(Stream input)
+            : base(input, Encoding.Unicode, true)
         {
         }
 
+        public static DataCenterRegions ReadAllRegions(Stream stream)
+        {
+            using (var reader = new RegionListReader(stream))
+            {
+                return reader.ReadDataCenter();
+            }
+        }
     }
 }

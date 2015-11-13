@@ -5,6 +5,7 @@ using System.Net.Cache;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using GothosDC;
 
 namespace DataTools
 {
@@ -26,7 +27,10 @@ namespace DataTools
                 Directory.CreateDirectory(CacheDirectory);
 
             ConsoleManager.Show();
-            Console.WriteLine("Inited...");
+            Console.WriteLine("Loading datacenter...");
+            var start = DateTime.UtcNow;
+            DCTools.DCT.DataCenter = DataCenter.Load("DataCenter_Final_EUR.bin");
+            Console.WriteLine("DataCenter loaded in {0:f1}s", (DateTime.UtcNow-start).TotalSeconds);
         }
 
         public static string LoadPage(string url)

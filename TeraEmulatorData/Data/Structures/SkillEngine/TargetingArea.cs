@@ -15,7 +15,7 @@ namespace Data.Structures.SkillEngine
         public float MaxHeight { get; set; }
 
         [ProtoBuf.ProtoMember(4)]
-        public int CrosshairRadius { get; set; }
+        public float CrosshairRadius { get; set; }
 
         [ProtoBuf.ProtoMember(5)]
         public int MaxCount { get; set; }
@@ -42,7 +42,7 @@ namespace Data.Structures.SkillEngine
         public float RangeAngle { get; set; }
 
         [ProtoBuf.ProtoMember(13)]
-        public int CrosshairRadius2 { get; set; }
+        public float CrosshairRadius2 { get; set; }
 
         [ProtoBuf.ProtoMember(14)]
         public AreaEffect Effect { get; set; }

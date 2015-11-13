@@ -7,7 +7,7 @@
         public int Id { get; set; }
 
         [ProtoBuf.ProtoMember(2)]
-        public int DetachAngle { get; set; }
+        public float DetachAngle { get; set; }
 
         [ProtoBuf.ProtoMember(3)]
         public float DetachDistance { get; set; }
@@ -19,6 +19,6 @@
         public float FlyingDistance { get; set; }
 
         [ProtoBuf.ProtoMember(6)]
-        public int ShootAngle { get; set; }
+        public float ShootAngle { get; set; }
     }
 }

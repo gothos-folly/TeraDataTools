@@ -97,7 +97,7 @@ namespace DataTools.Parsers.DC
                     Section s = new Section();
                     s.Priority = int.Parse(sct["priority"].ToString());
                     s.HuntingZoneId = int.Parse(sct["huntingZoneId"].ToString());
-                    s.AddMaxZ = int.Parse(sct["addMaxZ"].ToString());
+                    s.AddMaxZ = float.Parse(sct["addMaxZ"].ToString());
                     s.CampId = int.Parse(sct["campId"].ToString());
                     s.Destext = bool.Parse(sct["desTex"].ToString());
                     s.Floor = int.Parse(sct["floor"].ToString());
@@ -108,7 +108,7 @@ namespace DataTools.Parsers.DC
                     if (sct.ContainsKey("restBonus"))
                         s.RestBonus = bool.Parse(sct["restBonus"].ToString());
 
-                    s.SubtractMinZ = int.Parse(sct["subtractMinZ"].ToString());
+                    s.SubtractMinZ = float.Parse(sct["subtractMinZ"].ToString());
                     s.Vender = bool.Parse(sct["vender"].ToString());
                     s.WorldMapSectionId = int.Parse(sct["worldMapSectionId"].ToString());
 
@@ -134,7 +134,7 @@ namespace DataTools.Parsers.DC
                             Section sq = new Section();
                             sq.Priority = int.Parse(dictionary["priority"].ToString());
                             sq.HuntingZoneId = int.Parse(dictionary["huntingZoneId"].ToString());
-                            sq.AddMaxZ = int.Parse(dictionary["addMaxZ"].ToString());
+                            sq.AddMaxZ = float.Parse(dictionary["addMaxZ"].ToString());
                             sq.CampId = int.Parse(dictionary["campId"].ToString());
                             sq.Destext = bool.Parse(dictionary["desTex"].ToString());
                             sq.Floor = int.Parse(dictionary["floor"].ToString());
@@ -145,7 +145,7 @@ namespace DataTools.Parsers.DC
                             if (dictionary.ContainsKey("restBonus"))
                                 sq.RestBonus = bool.Parse(dictionary["restBonus"].ToString());
 
-                            sq.SubtractMinZ = int.Parse(dictionary["subtractMinZ"].ToString());
+                            sq.SubtractMinZ = float.Parse(dictionary["subtractMinZ"].ToString());
                             sq.Vender = bool.Parse(dictionary["vender"].ToString());
                             sq.WorldMapSectionId = int.Parse(dictionary["worldMapSectionId"].ToString());
 

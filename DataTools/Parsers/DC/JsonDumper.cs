@@ -12,12 +12,12 @@ namespace DataTools.Parsers.DC
         {
             var dir = "data/json/";
             var dc = DCT.GetDataCenter();
-            foreach (var group in dc.MainObjects.GroupBy(x => x.Name))
+            foreach (var group in DCT.DataCenter.Root.Children.GroupBy(x => x.Name))
             {
                 string dir2, format;
                 if (group.Count() > 1)
                 {
-                    dir2 = dir + group.Key+"/";
+                    dir2 = dir + group.Key + "/";
                     format = "{0}-{1}.json";
                 }
                 else
@@ -30,7 +30,7 @@ namespace DataTools.Parsers.DC
                 int i = 0;
                 foreach (var mainObject in group)
                 {
-                    var values = dc.GetValues(mainObject);
+                    var values = dc.GetValues(mainObject, x => x.Value);
                     var json = JsonConvert.SerializeObject(values, Formatting.Indented);
                     File.WriteAllText(dir2 + string.Format(format, mainObject.Name, i), json);
                     i++;

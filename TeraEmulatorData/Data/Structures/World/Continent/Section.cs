@@ -13,7 +13,7 @@ namespace Data.Structures.World.Continent
         public int HuntingZoneId;
 
         [ProtoBuf.ProtoMember(3)]
-        public int AddMaxZ;
+        public float AddMaxZ;
 
         [ProtoBuf.ProtoMember(4)]
         public int CampId;
@@ -34,7 +34,7 @@ namespace Data.Structures.World.Continent
         public bool RestBonus;
 
         [ProtoBuf.ProtoMember(10)]
-        public int SubtractMinZ;
+        public float SubtractMinZ;
 
         [ProtoBuf.ProtoMember(11)]
         public bool Vender;

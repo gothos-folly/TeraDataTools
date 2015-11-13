@@ -73,10 +73,10 @@ namespace Data.Structures.SkillEngine
         public bool UseSkillWhileReaction { get; set; }
 
         [ProtoBuf.ProtoMember(20)]
-        public int TotalStk { get; set; }
+        public float TotalStk { get; set; }
 
         [ProtoBuf.ProtoMember(21)]
-        public int TotalStkPvP { get; set; }
+        public float TotalStkPvP { get; set; }
 
         //Bullet
 

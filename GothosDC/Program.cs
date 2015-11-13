@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using GothosDC.LowLevel;
 
 namespace GothosDC
 {
@@ -9,8 +11,15 @@ namespace GothosDC
     {
         static void Main(string[] args)
         {
-            var dc = DataCenterRegions.Load(args[0]);
-            foreach (var s in dc.PrintLegacyRegions())
+            PrintLegacyRegions(args[0]);
+
+            var dataCenter = DataCenter.Load(args[0]);
+        }
+
+        private static void PrintLegacyRegions(string filename)
+        {
+            var dataCenterRegions = DataCenterRegions.Load(filename);
+            foreach (var s in dataCenterRegions.PrintLegacyRegions())
             {
                 Console.WriteLine(s);
             }

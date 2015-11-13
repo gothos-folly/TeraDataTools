@@ -248,10 +248,10 @@ namespace DataTools.Parsers.DC
                 skill.UseSkillWhileReaction = bool.Parse(data["useSkillWhileReaction"].ToString());
 
             if (data.ContainsKey("totalStk"))
-                skill.TotalStk = int.Parse(data["totalStk"].ToString());
+                skill.TotalStk = float.Parse(data["totalStk"].ToString());
 
             if (data.ContainsKey("totalStkPvp"))
-                skill.TotalStkPvP = int.Parse(data["totalStkPvp"].ToString());
+                skill.TotalStkPvP = float.Parse(data["totalStkPvp"].ToString());
 
             //Bullet
 
@@ -550,7 +550,7 @@ namespace DataTools.Parsers.DC
 
             skill.Id = int.Parse(data["id"].ToString());
 
-            skill.DetachAngle = int.Parse(data["detachAngle"].ToString());
+            skill.DetachAngle = float.Parse(data["detachAngle"].ToString());
 
             skill.DetachDistance = float.Parse(data["detachDistance"].ToString(), CultureInfo.InvariantCulture);
 
@@ -559,7 +559,7 @@ namespace DataTools.Parsers.DC
             skill.FlyingDistance = float.Parse(data["flyingDistance"].ToString());
 
             if (data.ContainsKey("shootAngle"))
-                skill.ShootAngle = int.Parse(data["shootAngle"].ToString());
+                skill.ShootAngle = float.Parse(data["shootAngle"].ToString());
 
             return skill;
         }
@@ -581,7 +581,7 @@ namespace DataTools.Parsers.DC
                 area.MaxHeight = float.Parse(data["maxHeight"].ToString());
 
             if (data.ContainsKey("crosshairRadius"))
-                area.CrosshairRadius = int.Parse(data["crosshairRadius"].ToString());
+                area.CrosshairRadius = float.Parse(data["crosshairRadius"].ToString());
 
             if (data.ContainsKey("maxCount"))
                 area.MaxCount = int.Parse(data["maxCount"].ToString());
@@ -608,7 +608,7 @@ namespace DataTools.Parsers.DC
                 area.RangeAngle = float.Parse(data["rangeAngle"].ToString());
 
             if (data.ContainsKey("crosshairRadius2"))
-                area.CrosshairRadius2 = int.Parse(data["crosshairRadius2"].ToString());
+                area.CrosshairRadius2 = float.Parse(data["crosshairRadius2"].ToString());
 
             area.Effect = ParseAreaEffect(((List<Dictionary<string, object>>)data["Effect"])[0]);
 

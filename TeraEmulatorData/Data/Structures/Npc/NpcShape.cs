@@ -4,12 +4,12 @@
     public class NpcShape
     {
         [ProtoBuf.ProtoMember(1)]
-        public int RunSpeed;
+        public float RunSpeed;
 
         [ProtoBuf.ProtoMember(2)]
-        public int TurnSpeed;
+        public float TurnSpeed;
 
         [ProtoBuf.ProtoMember(3)]
-        public int WalkSpeed;
+        public float WalkSpeed;
     }
 }

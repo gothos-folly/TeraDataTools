@@ -104,13 +104,13 @@ namespace DataTools.Parsers.DC
                     int id = int.Parse(data["id"].ToString());
 
                     if (data.ContainsKey("baseRunSpeed"))
-                        shape.RunSpeed = int.Parse(data["baseRunSpeed"].ToString());
+                        shape.RunSpeed = float.Parse(data["baseRunSpeed"].ToString());
 
                     if (data.ContainsKey("baseTurnSpeed"))
-                        shape.TurnSpeed = int.Parse(data["baseTurnSpeed"].ToString());
+                        shape.TurnSpeed = float.Parse(data["baseTurnSpeed"].ToString());
 
                     if (data.ContainsKey("baseWalkSpeed"))
-                        shape.WalkSpeed = int.Parse(data["baseWalkSpeed"].ToString());
+                        shape.WalkSpeed = float.Parse(data["baseWalkSpeed"].ToString());
 
                     if (!Shapes.ContainsKey(id))
                         Shapes.Add(id, shape);

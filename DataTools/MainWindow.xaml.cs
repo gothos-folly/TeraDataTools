@@ -31,6 +31,7 @@ namespace DataTools
             AddButton("CooldownGroups parser", Parsers.DC.CooldownGroupsParser.Parse);
             AddButton("Collections parser", Parsers.DC.GatherParser.Parse);
             AddButton("Json dump", Parsers.DC.JsonDumper.Parse);
+            AddButton("XML dump", Parsers.DC.XmlDumper.Parse);
 
             AddLabel("teratome.com:");
             AddButton("Drop parser", Parsers.Teratome.DropParser.Parse);
