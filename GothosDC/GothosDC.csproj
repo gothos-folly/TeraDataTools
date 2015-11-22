@@ -51,10 +51,13 @@
     <Compile Include="LowLevel\DataCenterRegions.cs" />
     <Compile Include="LowLevel\DataCenterElementRaw.cs" />
     <Compile Include="DataCenterValue.cs" />
+    <Compile Include="LowLevel\Helpers.cs" />
     <Compile Include="LowLevel\RegionListReader.cs" />
+    <Compile Include="LowLevel\SegmentArrayDictionary.cs" />
     <Compile Include="LowLevel\TeraDataReader.cs" />
     <Compile Include="LowLevel\TypeCode.cs" />
     <Compile Include="LowLevel\DataCenterValueRaw.cs" />
+    <Compile Include="LowLevel\UnknownStruct.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LowLevel\DataCenterRegion.cs" />

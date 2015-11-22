@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GothosDC.LowLevel;
 using TypeCode = GothosDC.LowLevel.TypeCode;
 
@@ -11,9 +9,11 @@ namespace GothosDC
     public class DataCenter
     {
         private readonly Dictionary<SegmentAddress, string> _strings;
-        private readonly List<string> _names;
-        private readonly Dictionary<SegmentAddress, DataCenterValueRaw> _values;
-        private readonly Dictionary<SegmentAddress, DataCenterElementRaw> _elements;
+        private readonly string[] _names;
+        private readonly SegmentAddressDictionary<DataCenterValueRaw> _values;
+        private readonly SegmentAddressDictionary<DataCenterElementRaw> _elements;
+
+        public int Revision { get; private set; }
 
         internal string GetArgumentString(ushort index)
         {
@@ -63,13 +63,14 @@ namespace GothosDC
 
         public DataCenter(DataCenterRaw lowLevel)
         {
-            _strings = lowLevel.Strings.ToDictionary(x => x.Key, x => x.Value);
-            _names = new[] { "__placeholder__" }.Concat(lowLevel.Names.Select(x => x.Value)).ToList();
-            _values = lowLevel.Values.ToDictionary(x => x.Key, x => x.Value);
-            _elements = lowLevel.Elements.ToDictionary(x => x.Key, x => x.Value);
-            var referencesObjects = _elements.Values.SelectMany(x => x.SubAddresses());
+            _strings = lowLevel.Strings.CollectionToDictionary(x => x.Key, x => x.Value);
+            _names = new[] { "__placeholder__" }.Concat(lowLevel.Names.Select(x => x.Value)).ToArray();
+            _values = new SegmentAddressDictionary<DataCenterValueRaw>(lowLevel.Values, lowLevel.Values.Last().Key);
+            _elements = new SegmentAddressDictionary<DataCenterElementRaw>(lowLevel.Elements, lowLevel.Elements.Last().Key);
+            Revision = lowLevel.Revision;
 
-            if (!_elements.Keys.Except(referencesObjects).ToList().SequenceEqual(new[] { new SegmentAddress() }))
+            var referencedObjects = _elements.Values.SelectMany(x => x.SubAddresses());
+            if (!_elements.Keys.Except(referencedObjects).ToList().SequenceEqual(new[] { new SegmentAddress() }))
                 throw new Exception("Only the first object should be unreferenced");
         }
 

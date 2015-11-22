@@ -7,6 +7,7 @@ namespace GothosDC.LowLevel
     {
         public ushort Key { get; private set; }
         public TypeCode TypeCode { get; private set; }
+        private readonly uint _value;
 
         public object Value
         {
@@ -25,8 +26,6 @@ namespace GothosDC.LowLevel
                 }
             }
         }
-
-        private readonly uint _value;
 
         public int ToInt()
         {

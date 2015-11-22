@@ -8,27 +8,8 @@ namespace GothosDC.LowLevel
 {
     internal class TeraDataReader : BinaryReader
     {
-        public TeraDataReader(Stream input)
-            : base(input, Encoding.Unicode)
-        {
-        }
-
-        private static Stream CreateStreamSlice(Stream input, DataCenterRegion region)
-        {
-            return new StreamSlice(input, region.Start, region.Length);
-        }
-
-        private static Stream CreateMemoryStream(Stream input)
-        {
-            var inputLength = (int)input.Length;
-            var stream = new MemoryStream(inputLength);
-            input.CopyTo(stream);
-            stream.Position = 0;
-            return stream;
-        }
-
-        public TeraDataReader(Stream input, DataCenterRegion region)
-            : base(CreateMemoryStream(CreateStreamSlice(input, region)), Encoding.Unicode, true)
+        public TeraDataReader(Stream stream)
+            : base(stream, Encoding.Unicode, true)
         {
         }
 
@@ -60,7 +41,7 @@ namespace GothosDC.LowLevel
                 var offset = reader.BaseStream.Position;
                 Debug.Assert(offset % elementSize == 0);
                 var data = readData(reader);
-                return new KeyValuePair<ushort,T>((ushort)(offset / elementSize), data);
+                return new KeyValuePair<ushort, T>((ushort)(offset / elementSize), data);
             };
             return addOffset;
         }
@@ -91,9 +72,9 @@ namespace GothosDC.LowLevel
             return new DataCenterElementRaw(nameKey, unknown, argsCount, subCount, argsAddress, subAddress);
         }
 
-        public static IEnumerable<T> ReadAll<T>(Stream stream, DataCenterRegion region, Func<TeraDataReader, T> readOne)
+        public static IEnumerable<T> ReadAll<T>(Stream stream, Func<TeraDataReader, T> readOne)
         {
-            using (var reader = new TeraDataReader(stream, region))
+            using (var reader = new TeraDataReader(stream))
             {
                 while (reader.BaseStream.Position < reader.BaseStream.Length)
                 {
@@ -102,6 +83,16 @@ namespace GothosDC.LowLevel
                 if (reader.BaseStream.Position > reader.BaseStream.Length)
                     throw new Exception("Read beyond the end");
             }
+        }
+
+        public UnknownStruct ReadUnknown()
+        {
+            var result = new UnknownStruct();
+            result.Key = ReadUInt32();
+            result.Column4 = ReadUInt32();
+            result.Column8 = ReadUInt32();
+            result.Address = ReadSegmentAddress();
+            return result;
         }
     }
 }

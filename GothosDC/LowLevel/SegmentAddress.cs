@@ -7,6 +7,13 @@ namespace GothosDC.LowLevel
         public ushort SegmentIndex { get; private set; }
         public ushort ElementIndex { get; private set; }
 
+        public SegmentAddress(uint i)
+            : this()
+        {
+            SegmentIndex = (ushort)(i >> 16);
+            ElementIndex = unchecked((ushort)i);
+        }
+
         public SegmentAddress(ushort segmentIndex, ushort elementIndex)
             : this()
         {
@@ -31,9 +38,14 @@ namespace GothosDC.LowLevel
             return Equals((SegmentAddress)obj);
         }
 
-        public override int GetHashCode()
+        public int ToInt()
         {
             return unchecked(SegmentIndex << 16 | ElementIndex);
+        }
+
+        public override int GetHashCode()
+        {
+            return ToInt();
         }
 
         public SegmentAddress Add(ushort offset)

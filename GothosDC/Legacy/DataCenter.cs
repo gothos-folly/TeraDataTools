@@ -26,10 +26,14 @@ namespace DCTools.Structures
             return _dataCenter.Root.ChildrenByName(name);
         }
 
-
         public Dictionary<string, object> GetValues(DataCenterElement dcObject)
         {
-           return GetValues(dcObject, x => (object)x.ValueToString(CultureInfo.CurrentCulture));
+            return GetValues(dcObject, x => (object) x.ValueToString(CultureInfo.CurrentCulture));
+        }
+
+        public Dictionary<string, object> GetValuesAsObjects(DataCenterElement dcObject)
+        {
+            return GetValues(dcObject, x => x);
         }
 
         public Dictionary<string, object> GetValues(DataCenterElement dcObject, Func<DataCenterValue, object> projection)
