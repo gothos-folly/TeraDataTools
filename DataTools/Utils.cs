@@ -27,10 +27,20 @@ namespace DataTools
                 Directory.CreateDirectory(CacheDirectory);
 
             ConsoleManager.Show();
+            var dcPath = GetDataCenterPath();
             Console.WriteLine("Loading datacenter...");
             var start = DateTime.UtcNow;
-            DCTools.DCT.DataCenter = DataCenter.Load("DataCenter_Final_EUR.bin");
-            Console.WriteLine("DataCenter loaded in {0:f1}s", (DateTime.UtcNow-start).TotalSeconds);
+            DCTools.DCT.DataCenter = DataCenter.Load(dcPath);
+            Console.WriteLine("DataCenter loaded in {0:f1}s", (DateTime.UtcNow - start).TotalSeconds);
+        }
+
+        public static string GetDataCenterPath()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "DataCenters|DataCenter*.unpacked;DataCenter*.bin|All files|*.*";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+                return openFileDialog.FileName;
+            throw new Exception("Cancelled");
         }
 
         public static string LoadPage(string url)
