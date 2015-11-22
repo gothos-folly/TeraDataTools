@@ -19,7 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\build\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -29,7 +29,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\build\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -181,7 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GothosDC\GothosDC.csproj">
-      <Project>{4243a952-7721-46d7-be73-d3e3a084b081}</Project>
+      <Project>{05c83378-cc1d-4b56-a176-076d1826cd64}</Project>
       <Name>GothosDC</Name>
     </ProjectReference>
     <ProjectReference Include="..\TeraEmulatorData\TeraEmulatorData.csproj">
