@@ -14,12 +14,10 @@ namespace DataTools.Parsers.DC
 
         public static void Parse()
         {
-            string binPath = Path.GetFullPath("../../../../datapack/gameserver/data/");
-
             Groups = new Dictionary<int, List<int>>();
             ParseGroups();
 
-            using (FileStream fs = File.Create(binPath + "item_cooldown_groups.bin"))
+            using (FileStream fs = File.Create(Utils.GetOutput("item_cooldown_groups.bin")))
                 Serializer.Serialize(fs, Groups);
         }
 

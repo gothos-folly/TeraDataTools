@@ -13,19 +13,18 @@ namespace DataTools.Parsers.DC
     {
         public static void Parse()
         {
-            var dir = "data/xml/";
             var dc = DCT.GetDataCenter();
             foreach (var group in DCT.DataCenter.Root.Children.GroupBy(x => x.Name))
             {
                 string dir2, format;
                 if (group.Count() > 1)
                 {
-                    dir2 = dir + group.Key + "/";
+                    dir2 = "xml/" + group.Key + "/";
                     format = "{0}-{1}.xml";
                 }
                 else
                 {
-                    dir2 = dir;
+                    dir2 = "xml/";
                     format = "{0}.xml";
                 }
 

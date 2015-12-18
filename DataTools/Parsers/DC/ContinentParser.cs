@@ -24,13 +24,11 @@ namespace DataTools.Parsers.DC
             LoadNames();
             LoadAreas();
             ParseContinents();
-
-            string binPath = Path.GetFullPath("../../../../datapack/gameserver/data/");
-
-            using (FileStream fs = File.Create(binPath + "continents.bin"))
+            
+            using (FileStream fs = File.Create(Utils.GetOutput("continents.bin")))
                 Serializer.Serialize(fs, Continents);
 
-            using (FileStream fs = File.Create(binPath + "areas.bin"))
+            using (FileStream fs = File.Create(Utils.GetOutput("areas.bin")))
                 Serializer.Serialize(fs, Areas);
         }
 

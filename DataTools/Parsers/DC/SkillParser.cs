@@ -37,20 +37,18 @@ namespace DataTools.Parsers.DC
             ParseSkills();
 
             ParseDefaultSkillSets();
-
-            string binPath = Path.GetFullPath("data/");
-
-            using (FileStream fs = File.Create(binPath + "default_skill_sets.bin"))
+            
+            using (FileStream fs = File.Create(Utils.GetOutput("default_skill_sets.bin")))
             {
                 Serializer.Serialize(fs, DefaultSkillSets);
             }
 
-            using (FileStream fs = File.Create(binPath + "user_skills.bin"))
+            using (FileStream fs = File.Create(Utils.GetOutput("user_skills.bin")))
             {
                 Serializer.Serialize(fs, UserSkills);
             }
 
-            using (FileStream fs = File.Create(binPath + "skills.bin"))
+            using (FileStream fs = File.Create(Utils.GetOutput("skills.bin")))
             {
                 Serializer.Serialize(fs, Skills);
             }

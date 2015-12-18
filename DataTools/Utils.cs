@@ -17,6 +17,15 @@ namespace DataTools
 
         public static string DataDirectory;
 
+        public static string OutputDirectory { get; private set; }
+
+        public static string GetOutput(string name)
+        {
+            var result = Path.Combine(OutputDirectory, name);
+            Directory.CreateDirectory(Path.GetDirectoryName(result));
+            return result;
+        }
+
         public static void Init()
         {
             RootDirectory = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -32,6 +41,9 @@ namespace DataTools
             var start = DateTime.UtcNow;
             DCTools.DCT.DataCenter = DataCenter.Load(dcPath);
             Console.WriteLine("DataCenter loaded in {0:f1}s", (DateTime.UtcNow - start).TotalSeconds);
+
+            OutputDirectory = "data/";
+            Directory.CreateDirectory(OutputDirectory);
         }
 
         public static string GetDataCenterPath()

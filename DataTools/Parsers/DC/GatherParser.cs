@@ -24,15 +24,13 @@ namespace DataTools.Parsers.DC
             ParseTemplates();
 
             ParseSpawn();
-
-            string binPath = Path.GetFullPath("../../../../datapack/gameserver/data/");
-
-            using (FileStream fs = File.Create(binPath + "gather_templates.bin"))
+            
+            using (FileStream fs = File.Create(Utils.GetOutput("gather_templates.bin")))
             {
                 Serializer.Serialize(fs, Templates);
             }
 
-            using (FileStream fs = File.Create(binPath + "spawn/dc_gather_spawns.bin"))
+            using (FileStream fs = File.Create(Utils.GetOutput("spawn/dc_gather_spawns.bin")))
             {
                 Serializer.Serialize(fs, GatherSpawnTemplates);
             }

@@ -32,6 +32,7 @@ namespace DataTools
             AddButton("Collections parser", Parsers.DC.GatherParser.Parse);
             AddButton("Json dump", Parsers.DC.JsonDumper.Parse);
             AddButton("XML dump", Parsers.DC.XmlDumper.Parse);
+            AddButton("DamageMeter export",Parsers.DC.DamageMeterExporter.Export);
 
             AddLabel("teratome.com:");
             AddButton("Drop parser", Parsers.Teratome.DropParser.Parse);

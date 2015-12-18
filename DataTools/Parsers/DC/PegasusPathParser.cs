@@ -21,14 +21,12 @@ namespace DataTools.Parsers.DC
 
         public static void Parse()
         {
-            string binPath = Path.GetFullPath("../../../../datapack/gameserver/data/");
-
             ParsePPoints();
 
-            using (FileStream fs = File.Create(binPath + "pegasus_paths.bin"))
+            using (FileStream fs = File.Create(Utils.GetOutput("pegasus_paths.bin")))
                 Serializer.Serialize(fs, PegasusPaths);
 
-            using (FileStream fs = File.Create(binPath + "fly_teleports.bin"))
+            using (FileStream fs = File.Create(Utils.GetOutput("fly_teleports.bin")))
                 Serializer.Serialize(fs, Teleports);
         }
 

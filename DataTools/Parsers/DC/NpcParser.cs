@@ -31,15 +31,13 @@ namespace DataTools.Parsers.DC
             ParseNpcTemplates();
 
             ParseSpawn();
-
-            string binPath = Path.GetFullPath("./data_new/");
-
-            using (FileStream fs = File.Create(binPath + "npc_templates.bin"))
+            
+            using (FileStream fs = File.Create(Utils.GetOutput("new/npc_templates.bin")))
             {
                 Serializer.Serialize(fs, NpcTemplates);
             }
 
-            using (FileStream fs = File.Create(binPath + "dc_spawn.bin"))
+            using (FileStream fs = File.Create(Utils.GetOutput("new/dc_spawn.bin")))
             {
                 Serializer.Serialize(fs, Spawn);
             }

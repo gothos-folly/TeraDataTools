@@ -10,29 +10,28 @@ namespace DataTools.Parsers.DC
     {
         public static void Parse()
         {
-            var dir = "data/json/";
+            //  var dir = "data/json/";
             var dc = DCT.GetDataCenter();
             foreach (var group in DCT.DataCenter.Root.Children.GroupBy(x => x.Name))
             {
                 string dir2, format;
                 if (group.Count() > 1)
                 {
-                    dir2 = dir + group.Key + "/";
+                    dir2 = "json/" + group.Key + "/";
                     format = "{0}-{1}.json";
                 }
                 else
                 {
-                    dir2 = dir;
+                    dir2 = "json/";
                     format = "{0}.json";
                 }
 
-                Directory.CreateDirectory(dir2);
                 int i = 0;
                 foreach (var mainObject in group)
                 {
                     var values = dc.GetValues(mainObject, x => x.Value);
                     var json = JsonConvert.SerializeObject(values, Formatting.Indented);
-                    File.WriteAllText(dir2 + string.Format(format, mainObject.Name, i), json);
+                    File.WriteAllText(Utils.GetOutput(dir2 + string.Format(format, mainObject.Name, i)), json);
                     i++;
                 }
             }

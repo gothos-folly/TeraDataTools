@@ -28,7 +28,7 @@ namespace DataTools.Parsers.DC
             List<string> names = ByNames.Keys.ToList();
             names.Sort();
 
-            using (TextWriter writer = new StreamWriter("data/abnormalities.txt"))
+            using (TextWriter writer = new StreamWriter(Utils.GetOutput("abnormalities.txt")))
             {
                 foreach (string name in names)
                 {
@@ -43,10 +43,8 @@ namespace DataTools.Parsers.DC
             }
 
             ParseAbnormality();
-
-            string binPath = Path.GetFullPath("data/");
-
-            using (FileStream fs = File.Create(binPath + "abnormalities.bin"))
+            
+            using (FileStream fs = File.Create(Utils.GetOutput("abnormalities.bin")))
             {
                 Serializer.Serialize(fs, Abnormalities);
             }

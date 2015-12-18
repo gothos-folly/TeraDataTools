@@ -78,6 +78,7 @@
     <Compile Include="Parsers\DC\AbnormalityParser.cs" />
     <Compile Include="Parsers\DC\ContinentParser.cs" />
     <Compile Include="Parsers\DC\CooldownGroupsParser.cs" />
+    <Compile Include="Parsers\DC\DamageMeterExporter.cs" />
     <Compile Include="Parsers\DC\GatherParser.cs" />
     <Compile Include="Parsers\DC\JsonDumper.cs" />
     <Compile Include="Parsers\DC\NpcParser.cs" />
