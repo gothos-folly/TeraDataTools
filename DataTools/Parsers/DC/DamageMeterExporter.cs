@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using DCTools;
 using DCTools.Structures;
 using Data.Enums;
+using Newtonsoft.Json;
 
 namespace DataTools.Parsers.DC
 {
@@ -56,6 +57,14 @@ namespace DataTools.Parsers.DC
             }
         }
 
+        private static string NullCommon(object o)
+        {
+            var s = o.ToString();
+            if (string.IsNullOrEmpty(s) || s == "Common")
+                return null;
+            return s;
+        }
+
         private static void ExportSkills()
         {
             var dc = DCT.DataCenter;
@@ -64,18 +73,18 @@ namespace DataTools.Parsers.DC
             var skills = dcObjects
                 .Select(data => new
                     {
-                        Id = data.Attribute<int>("id"),
-                        Race = data.Attribute<string>("race"),
-                        Gender = data.Attribute<string>("gender"),
-                        Class = PlayerClassHelper.Parse(data.Attribute<string>("class")),
-                        Name = data.Attribute<string>("name")
+                        id = NullCommon(data.Attribute<int>("id")),
+                        race = NullCommon(data.Attribute<string>("race")),
+                        gender = NullCommon(data.Attribute<string>("gender")),
+                        @class = NullCommon(PlayerClassHelper.Parse(data.Attribute<string>("class"))),
+                        name = NullCommon(data.Attribute<string>("name"))
                     })
-                .Where(x => !string.IsNullOrEmpty(x.Name))
-                .OrderBy(x => x.Class.ToString())
-                .ThenBy(x => x.Id);
+                .Where(x => !string.IsNullOrEmpty(x.name))
+                .OrderBy(x => x.@class)
+                .ThenBy(x => x.id);
 
-            var lines = skills.Select(x => string.Join(" ", x.Id, x.Race, x.Gender, x.Class, x.Name));
-            File.WriteAllLines(Utils.GetOutput("user_skills.txt"), lines);
+            var lines = skills.Select(o => JsonConvert.SerializeObject(o, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            File.WriteAllLines(Utils.GetOutput("user_skills.json"), lines);
         }
 
         public static void Export()

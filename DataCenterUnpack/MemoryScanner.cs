@@ -138,7 +138,9 @@ namespace DataCenterUnpack
             long current = proc_min_address_l;
             while (current < proc_max_address_l)
             {
-                VirtualQueryEx(processHandle, (IntPtr)current, out mem_basic_info, (uint)Marshal.SizeOf(mem_basic_info));
+                var informationSize = VirtualQueryEx(processHandle, (IntPtr)current, out mem_basic_info, (uint)Marshal.SizeOf(mem_basic_info));
+                if (informationSize == 0)
+                    throw new Win32Exception();
 
                 yield return mem_basic_info;
 

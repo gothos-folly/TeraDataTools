@@ -83,25 +83,29 @@ namespace DataCenterUnpack
 
             decryptedData.Position = 6;
 
-            // decompress using deflate
-            var unpackedData = new MemoryStream();
             int revision;
-            using (var deflateStream = new DeflateStream(decryptedData, CompressionMode.Decompress, true))
-            {
-                deflateStream.CopyTo(unpackedData);
-            }
-            info.Add("unpacked.size " + unpackedData.Length);
-            info.Add("unpacked.sha256 " + HashStream(unpackedData));
 
-            using (var reader = new BinaryReader(unpackedData, Encoding.Unicode, true))
+            // decompress using deflate
+            var tempFileName = Path.Combine(Path.GetDirectoryName(outputBase), "TempDataCenter");
+            using (var unpackedData = File.Create(tempFileName))
             {
-                unpackedData.Position = 0x0C;
-                revision = reader.ReadInt32();
-                info.Insert(1, "revision " + revision);
-            }
+                using (var deflateStream = new DeflateStream(decryptedData, CompressionMode.Decompress, true))
+                {
+                    deflateStream.CopyTo(unpackedData);
+                }
+                info.Add("unpacked.size " + unpackedData.Length);
+                info.Add("unpacked.sha256 " + HashStream(unpackedData));
 
+                using (var reader = new BinaryReader(unpackedData, Encoding.Unicode, true))
+                {
+                    unpackedData.Position = 0x0C;
+                    revision = reader.ReadInt32();
+                    info.Insert(1, "revision " + revision);
+                }
+            }
             File.WriteAllLines(Path.ChangeExtension(outputBase, revision + ".dcinfo"), info);
-            File.WriteAllBytes(Path.ChangeExtension(outputBase, revision + ".unpacked"), unpackedData.ToArray());
+            File.Copy(tempFileName,Path.ChangeExtension(outputBase, revision + ".unpacked"),true);
+            File.Delete(tempFileName);
             File.Delete(outputDecryptedName);
         }
 

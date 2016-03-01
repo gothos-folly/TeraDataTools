@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using GothosDC.LowLevel;
 
@@ -35,9 +36,43 @@ namespace GothosDC
             }
         }
 
-        public object Attribute(string name)
+        public DataCenterValue? Attribute(string name)
         {
-            return Attributes.SingleOrDefault(x => x.Name == name);
+            return Attributes.Where(x => x.Name == name).Cast<DataCenterValue?>().SingleOrDefault();
+        }
+
+        public T Attribute<T>(string name)
+        {
+            var dcValue = Attribute(name);
+
+            if (dcValue == null)
+            {
+                try
+                {
+                    return (T)(object)null;
+                }
+                catch (InvalidCastException ex)
+                {
+                    throw new KeyNotFoundException(string.Format("Key '{0}' not found", name), ex);
+                }
+            }
+            else
+            {
+                object value = dcValue.Value.Value;
+                try
+                {
+                    return (T)value;
+                }
+                catch (InvalidCastException ex)
+                {
+                    throw new InvalidCastException(string.Format("Could not cast {0}[\"{1}\"] = {2}  to '{3}'", Name, name, dcValue.Value.ValueToPrintString(CultureInfo.InvariantCulture), typeof(T).Name), ex);
+                }
+            }
+        }
+
+        public object this[string name]
+        {
+            get { return Attribute(name); }
         }
 
         public IEnumerable<DataCenterElement> Children

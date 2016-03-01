@@ -23,6 +23,19 @@ namespace GothosDC.LowLevel
             return DataCenterValueRaw.ToString(Value, cultureInfo);
         }
 
+        public string ValueToPrintString(CultureInfo cultureInfo)
+        {
+            switch (TypeCode)
+            {
+                case TypeCode.Int:
+                case TypeCode.Float:
+                case TypeCode.Bool:
+                    return ValueToString(cultureInfo);
+                default:
+                    return "\"" + ValueToString(cultureInfo) + "\"";
+            }
+        }
+
         public override string ToString()
         {
             var typeCodeString = Enum.IsDefined(typeof(TypeCode), TypeCode) ? TypeCode.ToString() : ((ushort)TypeCode).ToString("x4");

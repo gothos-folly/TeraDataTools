@@ -86,7 +86,7 @@ namespace DataCenterUnpack
                         index++;
                         while (data[index] == 0xCC)
                             index++;
-                        Array.Copy(data, index, dataSlice, 0, dataSlice.Length);
+                        Array.Copy(data, index, dataSlice, 0, Math.Min(data.Length - index, dataSlice.Length));
                         var disasm = new Disassembler(dataSlice, ArchitectureMode.x86_32, (ulong)memoryRegion.BaseAddress + (uint)index, true);
                         try
                         {
