@@ -64,7 +64,10 @@ namespace GothosDC
         public DataCenter(DataCenterRaw lowLevel)
         {
             _strings = lowLevel.Strings.CollectionToDictionary(x => x.Key, x => x.Value);
-            _names = new[] { "__placeholder__" }.Concat(lowLevel.Names.Select(x => x.Value)).ToArray();
+            
+            var nameMapping = new SegmentAddressDictionary<string>(lowLevel.Names, lowLevel.Names.Last().Key);
+            _names = new[] { "__placeholder__" }.Concat(lowLevel.NameIds.Select(x => nameMapping[x])).ToArray();
+            
             _values = new SegmentAddressDictionary<DataCenterValueRaw>(lowLevel.Values, lowLevel.Values.Last().Key);
             _elements = new SegmentAddressDictionary<DataCenterElementRaw>(lowLevel.Elements, lowLevel.Elements.Last().Key);
             Revision = lowLevel.Revision;
